@@ -1,12 +1,4 @@
 # Object Detection Flask REST API
-## TODO:
-1. api swagger for proper rest documentations
-2. missing created datetime for each object
-3. different algorithms to detect object
-4. aggregate scores by averaging different algorithms
-5. If there are multiple labels, take filename into account to pick one object over another?
-6. compress content
-7. use nosql to store image contents
 
 ## Before running the app
 1. Create Cloud Vision account and API key by following steps here:
@@ -31,3 +23,12 @@ python3 -m app -c <path_to_api_key_json>
 ```
 python3 -m pytest
 ```
+
+## TODO:
+1. API Swagger for proper rest documentations
+2. Missing created datetime for each object
+3. Different algorithms to detect object
+4. Aggregate scores by averaging different detection algorithms
+5. If there are multiple labels, take filename into account to pick one object over another?
+6. Compress image contents
+7. Explore more cost effective data store to preserve image contents instead of sql database
