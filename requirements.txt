@@ -1,0 +1,6 @@
+flask==2.0.2
+requests
+sqlalchemy==1.4.29
+pytest
+google-cloud-vision
+gunicorn
