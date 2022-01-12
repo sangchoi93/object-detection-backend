@@ -11,7 +11,6 @@ class GoogleVisionAPICaller():
     def __init__(self):
         self.client = vision.ImageAnnotatorClient()
 
-
     def annotate(self, content) -> list:
         """call Annotate method of the API with images.
         Returns list of labels with score and tropicality ordered by score
@@ -34,7 +33,6 @@ class GoogleVisionAPICaller():
             })
 
         return to_return
-
 
 def main():
     vision_caller = GoogleVisionAPICaller()

@@ -11,7 +11,6 @@ from object_detector_backend.util.exceptions import InvalidInputException
 images = Blueprint('image', __name__)
 logger = logging.getLogger(__name__)
 
-
 @images.route('', methods=['GET'])
 def get_images():
     """
@@ -33,7 +32,6 @@ def get_images():
         'images': to_return
     }
 
-
 @images.route('/<image_id>', methods=['GET'])
 def get_image_by_id(image_id: str):
     """
@@ -48,7 +46,6 @@ def get_image_by_id(image_id: str):
         }
     else:
         return {}
-
 
 @images.route('', methods=['POST'])
 def post_images():
@@ -131,7 +128,6 @@ def post_images():
     except Exception as e:
         db_api.session.rollback()
         raise e
-
 
 @images.route('reset', methods=['POST'])
 def reset_db():

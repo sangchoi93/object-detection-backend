@@ -95,7 +95,6 @@ class DatabaseAPI:
         # set up tables
         Base.metadata.create_all(self.engine)
 
-
     def get_images_by_label(self, labels: list) -> List[dict]:
         """Retrieves list of images based on label name
         """
@@ -118,7 +117,6 @@ class DatabaseAPI:
 
         return to_return
 
-
     def get_images(self, **kwargs) -> List[dict]:
         """Retrieves list of images based on criteria
         """
@@ -134,11 +132,9 @@ class DatabaseAPI:
 
         return to_return
 
-
     def get_labels_by_image_id(self, image_id: str) -> List[Labels]:
         return [label.to_dict() for label in \
             self._query(Labels, image_id=image_id)]
-
 
     def add_label(self, label: LabelModel) -> dict:
         """Stores image metadata in Images table
@@ -165,7 +161,6 @@ class DatabaseAPI:
 
         return duplicates[0].to_dict()
 
-
     def check_duplicate_image(self, image: ImageModel) -> dict:
         images = self._query(Images, checksum=image.checksum, filename=image.filename)
 
@@ -173,7 +168,6 @@ class DatabaseAPI:
             return images[0].to_dict()
         
         return {}
-
 
     def add_image(self, image: ImageModel) -> dict:
         """Stores image metadata in Images table
@@ -196,20 +190,16 @@ class DatabaseAPI:
         else:
             return duplicate
 
-
     def fetch_image_content_by_id(self, id):
         return self._query(Images, id=id)[0].content
-
 
     def _query_by_id(self, table_class: Base, id: list):
         q = self.session.query(table_class).filter(table_class.id.in_(id))
         return q.all()
 
-
     def _query(self, table_class: Base, **kwargs):
         q = self.session.query(table_class).filter_by(**kwargs)
         return q.all()
-
 
     def reset(self):
         os.remove('images.db')

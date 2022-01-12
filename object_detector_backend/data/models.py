@@ -20,13 +20,10 @@ class ImageModel():
         self.checksum = None
 
         if self.url and self.content is None:
-            try:
-                resp = requests.get(self.url, stream=True)
-                resp.raise_for_status()
-                self.content = resp.content
-                self.filename = url.split('/')[-1]
-            except requests.exceptions.HTTPError as e:
-                InvalidInputException('invalid url provided')
+            resp = requests.get(self.url, stream=True)
+            resp.raise_for_status()
+            self.content = resp.content
+            self.filename = url.split('/')[-1]
 
         if self.content is None:
             raise Exception('Image model should have file content')
