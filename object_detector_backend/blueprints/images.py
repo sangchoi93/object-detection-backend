@@ -6,18 +6,11 @@ from object_detector_backend.data.models import ImageModel, LabelModel
 
 from object_detector_backend.data.persistence import DatabaseAPI
 from object_detector_backend.data.vision import GoogleVisionAPICaller
+from object_detector_backend.util.exceptions import InvalidInputException
 
 images = Blueprint('image', __name__)
 logger = logging.getLogger(__name__)
 
-
-class InvalidInputException(Exception):
-    """Invalid user input
-    """
-    def __init__(self, message: str):
-        self.status_code = 400
-        self.message = message
-        super().__init__(self.message)
 
 @images.route('', methods=['GET'])
 def get_images():
@@ -40,6 +33,7 @@ def get_images():
         'images': to_return
     }
 
+
 @images.route('/<image_id>', methods=['GET'])
 def get_image_by_id(image_id: str):
     """
@@ -55,6 +49,7 @@ def get_image_by_id(image_id: str):
     else:
         return {}
 
+
 @images.route('', methods=['POST'])
 def post_images():
     """
@@ -63,32 +58,38 @@ def post_images():
     Image will also be labeled with user provided label.
 
     """
-    if 'image' not in request.files.keys():
-        raise InvalidInputException('image input is missing')
 
-    _content = request.files['image'].read()
-    if not(_content):
-        raise InvalidInputException('a file must be uploaded as image input')
+    _url = request.form.get('url', type=str, default=None)
+    _filename = request.form.get('filename', type=str, default=None)
+    _content = request.files.get('image', default=None)
+    _optional_label = request.form.get('label', None, type=str)
 
-    _filename = request.form.get('filename', type=str)
-    if not(_filename):
-        raise InvalidInputException('filename must be provided as an input')
+    # if image input is provided, read file as bytes
+    if _content:
+        _content = _content.read()
 
+    if _content is None and _filename is None and _url is None:
+        raise InvalidInputException("Either 'url' or 'image' must be provided as an input")
+
+    if _content is None and _url is None:
+        raise InvalidInputException("'image' must be provided as an input")
+
+    if _filename is None and _url is None:
+        raise InvalidInputException("'filename' must be provided as an input")
+
+    # detection enabled by default
     _enable_detection = request.form.get('enable_detection', 'True', type=str)
     _enable_detection = _enable_detection.upper()
 
-    _optional_label = request.form.get('label', None, type=str)
-
     db_api = DatabaseAPI()
-    _image_id = str(uuid.uuid1())
-    image = ImageModel(id=_image_id,
+    _image = ImageModel(id=str(uuid.uuid1()),
                        filename=_filename,
-                       url=None,
+                       url=_url,
                        content=_content)
 
-    duplicate_image_found = db_api.check_duplicate_image(image)
+    duplicate_image_found = db_api.check_duplicate_image(_image)
     if not(duplicate_image_found):
-        committed_image = db_api.add_image(image)
+        committed_image = db_api.add_image(_image)
     else:
         committed_image = duplicate_image_found
 
@@ -96,7 +97,8 @@ def post_images():
         if _enable_detection == 'TRUE':
             logger.info('Detection enabled...')
             vision_client = GoogleVisionAPICaller()
-            vision_labels = vision_client.annotate(content=_content)
+            vision_labels = vision_client.annotate(\
+                content=db_api.fetch_image_content_by_id(committed_image['id']))
 
             for label in vision_labels:
                 db_api.add_label(
@@ -129,6 +131,7 @@ def post_images():
     except Exception as e:
         db_api.session.rollback()
         raise e
+
 
 @images.route('reset', methods=['POST'])
 def reset_db():

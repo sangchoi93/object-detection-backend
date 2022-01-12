@@ -1,13 +1,15 @@
-import datetime
 import hashlib
+import requests
+from object_detector_backend.util.exceptions import InvalidInputException
+
 
 class ImageModel():
     """Image class to hold image metadata and its content
     """
     def __init__(self,
                  id: str,
-                 filename:str,
-                 url: str,
+                 filename:str = None,
+                 url: str = None,
                  content = None,
                  filetype:str = None):
         self.id = id
@@ -17,9 +19,20 @@ class ImageModel():
         self.filetype = filetype
         self.checksum = None
 
-        if self.content:
-            self.checksum = hashlib.md5(self.content).hexdigest()
-        
+        if self.url and self.content is None:
+            try:
+                resp = requests.get(self.url, stream=True)
+                resp.raise_for_status()
+                self.content = resp.content
+                self.filename = url.split('/')[-1]
+            except requests.exceptions.HTTPError as e:
+                InvalidInputException('invalid url provided')
+
+        if self.content is None:
+            raise Exception('Image model should have file content')
+
+        self.checksum = hashlib.md5(self.content).hexdigest()
+
         if not(self.filetype):
             filename_splits = self.filename.split('.')
             if len(filename_splits) > 1:

@@ -32,3 +32,4 @@ python3 -m pytest
 5. If there are multiple labels, take filename into account to pick one object over another?
 6. Compress image contents
 7. Explore more cost effective data store to preserve image contents instead of sql database
+8. Determine if file/url provided is an image.
