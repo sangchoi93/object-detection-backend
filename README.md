@@ -24,6 +24,26 @@ python3 -m app -c <path_to_api_key_json>
 python3 -m pytest
 ```
 
+## Images Endpoints
+POST /images - Upload image to annotate with labels. Either file or url must be provided
+Parameters:
+image(form-data): Image file to upload
+filename(form-data): Name of the file to upload
+enable_detection(form-data): Flag to enable label annotation
+label(form-data): Optional label for the image
+url(form-data): URL of the image to upload
+
+GET /images - Retrieve all images from the database
+Parameters:
+objects(parameter): labels to search for
+
+GET /images/{image-id} - Retrieve image with the image-id
+Parameters:
+image-id(path): image-id of an image to retrieve
+
+POST /images/reset - Resets images database
+
+
 ## TODO:
 1. API Swagger for proper rest documentations
 2. Missing created datetime for each object
